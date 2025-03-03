@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+struct Player{
+	char id[20];
+	char account[10];
+	char password[8];
+	char security_question[10000]; //密保问题和答案 
+	char security_answer[10000];
+	int session, session_win, session_fail, session_red, session_bull;  //场数 
+	float probability_win, probility_fail, probability_win_red, probability_fail_bull;  //概率 
+};  //设计玩家信息结构 
+int login(struct Player*p){
+	int choice = 1;
+	printf("请选择登录(1)或注册(0):");
+	scanf("%d", &choice);
+	if(choice == 0){
+		printf("请输入玩家昵称:");
+		scanf("%s",p -> id);
+		printf("请输入账号:");
+		scanf("%s",p -> account);
+		printf("请输入密码:");
+		scanf("%s",p -> password);
+		printf("请设置密保问题:");
+		scanf("%s",p -> security_question);
+		printf("请输入密保答案:");
+		scanf("%s",p -> security_answer);	
+	}
+}
+int main(int argc, char *argv[]) {
+	struct Player player[10];
+	struct Player *p;
+	
+	login(p);
+	return 0;
+}
