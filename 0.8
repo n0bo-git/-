@@ -1,0 +1,646 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include<ctype.h>
+#include <math.h>
+#include <windows.h>        //变色 
+
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+struct type {        //棋子 
+    int line;    
+    int list;
+    int name;
+};
+
+struct player {      //创建链表 
+	int uid; 
+	char name[30];
+	char password[1000];
+	int win_count;
+	int fail_count;
+	int tie;
+	int points;
+	struct player *next;
+};
+struct playerlist {
+	struct player *head;
+	int length;
+};
+void initlink(struct playerlist *link) {
+	link -> head = NULL;
+	link -> length = 0;
+}
+
+struct player * getelement(struct playerlist *link, int pos) {   //登录,查找,修改 
+	if(pos < 0 || pos > link -> length) {	
+		printf("查无此人\n"); 
+		return NULL;
+	}
+	struct player *p = link -> head;
+	int i = 0;
+	for(i = 0; i < pos; i++) {
+		p = p -> next;
+	}
+	return p;
+}
+int insert(struct playerlist *link, int pos, struct player* player) {     //为了让下面内段不报错 
+	if(pos < 0 || pos > link -> length) {
+		return NULL;
+	}
+	if(pos == 0) {  
+		player -> next = link -> head;
+		link -> head = player;
+	}
+	else { 
+		struct player *prev = getelement(link,pos - 1);
+		player -> next = prev -> next;
+		prev -> next = player;
+	}
+	link -> length++;  //更新链表长度 
+	return 1;
+}
+
+int insert_after(struct playerlist *link, int pos, struct player *player) {  //插入需要 
+	int eng_count = 0, num_count = 0;
+	int i, flag = 1;
+	if(pos < 0 || pos > link -> length) {
+		printf("只能插入1--%d之间\n", link -> length);
+		return NULL; 
+	}
+	if(pos == 0) { //表头插入 
+		player -> next = link -> head;
+		link -> head = player;
+	}
+	else {  //非表头插入 
+		struct player *prev = getelement(link,pos - 1);
+		player -> next = prev -> next;
+		prev -> next = player;
+	}
+	struct player *cur = link -> head;
+	do {                 //后面的uid都加1 
+		cur -> uid += 1;
+		cur = cur -> next;
+	}while(cur -> next != NULL);
+	player -> uid = link -> length - pos + 1;
+	printf("请输入姓名:");
+	scanf("%s",player -> name);
+	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+	do{
+		scanf("%s",player -> password);
+		for(i = 0; i < strlen(player -> password); i++){
+			if(isdigit(player -> password[i])){
+				num_count++;
+			}
+			else if(isalpha(player -> password[i])){
+				eng_count++;
+			}
+		}
+		if(num_count >= 1 && eng_count >= 1){
+			flag = 0;
+		}
+		else{
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+		}		
+	}while(flag != 0);
+	player ->win_count = 0;
+	player -> fail_count = 0;
+	player -> tie = 0;
+	player -> points = 0;
+	printf("插入成功\n");
+	link -> length++;  //更新链表长度 
+	return 1;
+}
+int showmenu(int online) {        //菜单 
+	printf("\t\t|============================请选择您要进行的操作(当前为");
+	if(online == 0){
+		printf("离线");
+	}
+	else{
+		printf("在线"); 
+	}
+	printf("状态)===========|\t\n");
+	printf("\t\t|=====\t\t\t\t注册账号1\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t登录账号2\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t插入账号3\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t打印本机数据4\t\t\t\t====|\t\n");
+	if(online != 0){
+		printf("\t\t|=====\t\t\t\t查看个人信息5\t\t\t\t====|\t\n");
+		printf("\t\t|=====\t\t\t\t修改个人信息6\t\t\t\t====|\t\n");		
+		printf("\t\t|=====\t\t\t\t删除此账号7\t\t\t\t====|\t\n");
+	}
+	printf("\t\t|=====\t\t\t\t开始游戏8\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t退出程序9\t\t\t\t====|\t\n");
+	printf("\t\t|===========================================================================|\t\n");
+	int result=0;
+	printf("请选择您要进行的操作:");
+	scanf("%d", &result);
+	return result;
+}
+void showmenuresult(int result,int online) {          //选择操作 
+	switch(result) {
+		case 1:
+			printf("您选择了1注册账号操作\n");
+			break;
+		case 2:
+			printf("您选择了2登录账号操作\n");
+			break;
+		case 3:
+			printf("您选择了3插入账号操作\n");
+			break;
+		case 4:
+			printf("您选择了4打印本机数据操作\n");
+			break;
+		if(online != 0){
+			case 5:
+				printf("您选择了5查看个人信息操作\n");
+				break;
+			case 6:
+				printf("您选择了6修改个人信息操作\n");
+				break;
+			case 7:
+				printf("您选择了7删除此账号\n");
+				break;
+		}
+		case 8:
+			printf("您选择了8开始游戏操作\n");
+				break;	
+		default:
+			printf("未识别的操作\n");
+			break;
+	}
+}
+void addstuinfo(struct playerlist* link) {                  //注册
+	int eng_count = 0, num_count = 0;
+	int i, flag = 1;
+	
+	struct player *player=(struct player*)malloc(sizeof(struct player));
+	player -> next = NULL;
+	player -> uid = link -> length + 1;
+		
+	printf("请输入昵称:");
+	scanf("%s",player -> name);
+	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+	do{
+		scanf("%s",player -> password);
+		for(i = 0; i < strlen(player -> password); i++){
+			if(isdigit(player -> password[i])){
+				num_count++;
+			}
+			else if(isalpha(player -> password[i])){
+				eng_count++;
+			}
+		}
+		if(num_count >= 1 && eng_count >= 1){
+			flag = 0;
+		}
+		else{
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+		}		
+	}while(flag != 0);
+	player ->win_count = 0;
+	player -> fail_count = 0;
+	player -> points = 0;
+	printf("注册成功\n");
+	insert(link,0,player); 
+}
+void savestuinfo(struct playerlist*link) {               //保存 
+	if(link -> length == 0) {
+		printf("没有玩家数据,无法保存\n"); 
+		return NULL; 
+	}
+	else {
+		FILE *fp = fopen("player.txt","w");
+		if(fp == NULL) {
+			printf("无法打开player.txt文件\n");
+			return NULL;
+		}
+		struct player *cur = link -> head;
+		do {
+			fprintf(fp,"%d %s %s %d %d %d %d\n", cur -> uid, cur -> name, cur -> password, cur -> win_count, cur -> fail_count, cur -> tie, cur -> points);
+			cur = cur -> next;
+		} 
+		while(cur != NULL);
+		fclose(fp);
+		printf("保存成功\n"); 
+	}
+}
+void readstuinfo(struct playerlist*link) {            //读取 
+	FILE*fp=fopen("player.txt", "r");
+	
+	int uid,win_count, fail_count, tie, points;
+	char name[30];
+	char password[1000];
+	
+	while(fscanf(fp,"%d%s%s%d%d%D%d", &uid, name, password,win_count, fail_count, tie, points) != EOF) {
+		struct player*player=(struct player*)malloc(sizeof(struct player));
+		player -> win_count = win_count;
+		player -> fail_count = fail_count;
+		player -> tie = tie;
+		player -> points = points;
+		player -> uid = uid;
+		strcpy(player -> name, name);
+		strcpy(player -> password, password);
+		insert(link, link -> length, player);
+		player=(struct player*)malloc(sizeof(struct player));
+	}
+	fclose(fp);
+}
+void showstuscores(struct playerlist*link) {                //打印基本信息 
+	struct player*cur = link -> head;
+	if(link -> length == 0) {
+		printf("无玩家信息,请先注册\n");
+		return;
+	}
+	else {
+		printf("当前共%d位玩家,各位玩家数据如下:\n", link->length);
+		do {
+			printf("uid:%d,姓名:%s\n", cur -> uid, cur -> name);
+			cur = cur -> next;
+		}
+		while(cur != NULL);
+	}
+}
+int login(char Model_password[1000], char player_name[30], int player){    //登录 
+	char password[1000];
+	int try_count = 0;
+	int flag = 1;
+	printf("请输入密码:");
+	do{
+		if(try_count > 3){
+			printf("很遗憾，您无法登录此账号\n");
+			return 0;
+		}
+		scanf("%s", password);
+		if(strcmp(password,Model_password) == 0){
+			flag = 0;
+		}
+		else{
+			try_count++;
+			if(try_count < 3){
+				printf("您还有%d次机会，请重新输入密码:", 3 - try_count);	
+			}
+			else{
+				printf("已无尝试次数,");
+			}	
+		}
+	}while(flag != 0);
+	printf("登录成功,欢迎您'%s'\n", player_name);
+	return player;
+}
+void change_info(struct playerlist*link,struct player *player){            //修改个人信息 
+	int i,flag = 1;
+	char name[30];
+	char password[1000];
+	int num_count = 0, eng_count = 0;
+	printf("请输入新昵称:");
+	scanf("%s",name);
+	printf("请输入新密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+	do{
+		scanf("%s",password);
+		for(i = 0; i < strlen(password); i++){
+			if(isdigit(password[i])){
+				num_count++;
+			}
+			else if(isalpha(password[i])){
+				eng_count++;
+			}
+		}
+		if(num_count >= 1 && eng_count >= 1){
+			flag = 0;
+		}
+		else{
+			printf("不符合标准，请重新输入新密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");               //3 -> 2 -> 1
+		}		                                                                                                           //0 -> 1 -> 2
+	}while(flag != 0);
+	strcpy(player -> name, name);
+	strcpy(player -> password, password);		
+}
+int delete_link(struct playerlist *link,int online,struct player *last_player, struct player *next_player){          //删除 
+	 
+	if(link -> length - online == 0 || link -> length == 1){
+		link -> head = next_player -> next;
+	}
+	else{
+		struct player *cur = link -> head;           //后面的uid都减1
+		do{
+			cur -> uid -= 1;
+			cur = cur -> next;
+		}while(cur -> next != NULL);
+		last_player -> next = next_player -> next;	
+	}
+		                         
+	free(next_player);	
+	link -> length--;
+	return 0;	
+}
+void freeLink(struct playerlist*link) {
+	if(link -> length == 0) {
+		return;
+	}
+	struct player*p = link -> head -> next;
+	while(p) {
+		link -> head -> next = p -> next;
+		free(p);
+		p = link -> head -> next;
+	}
+	link -> length = 0;
+}
+
+
+int game(int player1, int player2) {
+    int i, j;
+    int point_end = 0;
+    int number_link = 1;
+    int admit_defeat = 0;
+    int number_type = 0;
+    int flag = 1;
+    int player = 0; 
+    int number, code, side;
+    int limit = 9, ty_limit = pow(limit, 2);
+    int code_row, code_list;
+    int m, n;
+    struct type ty[ty_limit];
+    int exit = 100;
+
+    for (number = 0; number < ty_limit; number++) {   // 初始化 
+        ty[number].line = 0;
+        ty[number].list = 0;
+        ty[number].name = 2; 
+    }
+
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
+
+    do {
+        printf("红子为1,蓝字为0,红子先落，请用序号替换'+'。\n"); // 介绍基本信息 
+        player = (player + 1) % 2;
+        printf("当前玩家:P%d\n", player);
+
+        printf("\t\t\t\t\t|");   // 生成棋盘，棋子 
+        for (code_row = 0; code_row < limit; code_row++) {
+            printf("---%d", code_row + 1);  // 生成行序号 
+        }
+        printf("---|\n");
+
+        for (code_list = 0; code_list < limit * 2 + 1; code_list++) {
+            if (code_list % 2 != 0) {
+                printf("\t\t\t\t\t%d", (code_list + 1) / 2);  // 生成列序号 
+                for (code_row = 0; code_row < limit; code_row++) {
+                    side = (code_list + 1) / 2;
+                    code = (side - 1) * 9 + code_row;
+                    ty[code].line = code_row + 1;
+                    ty[code].list = side;
+                    if (ty[code].name == 1) {
+                        printf("---");
+                        SetConsoleTextAttribute(hConsole, FOREGROUND_RED);  // 红色棋子 
+                        printf("+");
+                        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); // 恢复默认				
+                    }
+                    else if (ty[code].name == 0) {
+                        printf("---");
+                        SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE); // 蓝色棋子 
+                        printf("+");
+                        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); // 恢复默认				
+                    }
+                    else {
+                        printf("---+");					
+                    }
+                }
+                printf("---|\n");			
+            }
+            else {
+                printf("\t\t\t\t\t|"); 
+                for (code_row = 0; code_row < limit; code_row++) {
+                    printf("---|");
+                }
+                printf("---|\n");			
+            }
+        }
+        printf("\t\t\t\t\t|");
+        for (code_row = 0; code_row < limit; code_row++) {
+            printf("----");
+        }
+        printf("---|\n");
+
+        // 竖线五子判断
+        for (i = 0; i < 45; i++) {   
+            number_link = 1;
+            for (j = i; j < j + 72; j += 9) {
+                if (ty[j].name == ty[j + 9].name && ty[j].name != 2) {
+                    number_link++;
+                    if (number_link == 5) {
+                        goto end;	
+                    }	
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        // 横线五子判断
+        for (j = 0; j <= 77; j++) {   
+            number_link = 1;
+            for (i = j; i < i + 9; i++) {
+                if (ty[i].name == ty[i + 1].name && ty[i].name != 2) {
+                    number_link++;
+                    if (number_link == 5) {
+                        goto end;	
+                    }	
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        // 正斜线五子判断 (从左上到右下)
+        for (i = 0; i < 45; i++) {   
+            number_link = 1;
+            for (j = i; j < ty_limit; j += 10) { // 斜线间隔为10
+                if (ty[j].name == ty[j + 10].name && ty[j].name != 2) {
+                    number_link++;
+                    if (number_link == 5) {
+                        goto end;	
+                    }	
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        // 反斜线五子判断 (从左下到右上)
+        for (i = 8; i < 53; i++) {   
+            number_link = 1;
+            for (j = i; j >= 0 && j + 8 < ty_limit; j += 8) { // 斜线间隔为8
+                if (ty[j].name == ty[j + 8].name && ty[j].name != 2) {
+                    number_link++;
+                    if (number_link == 5) {
+                        goto end;	
+                    }	
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        if (admit_defeat == 1) {  // 特殊结束：认输 
+            break;
+        } 
+        if (number_type == 81) {  // 特殊结束：平局 
+            player = 3;
+            break;
+        }
+
+        flag = 1;
+        do {   // 落子操作 
+            printf("请输入行序号(10为认输):");	
+            scanf("%d", &m);
+            if (m > limit && m != 10) {
+                printf("超出限制,请重新输入,"); // 预防超出限制落子 
+                continue; 
+            } 
+            exit = m;
+            if (exit == 10) {
+                admit_defeat = 1;
+                break; 
+            }
+            fflush(stdout);
+            printf("请输入列序号:");
+            scanf("%d", &n);
+            fflush(stdout);
+            if (n > limit) {
+                printf("超出限制,请重新输入,");  // 预防超出限制落子 
+                continue; 
+            } 
+            code = (n - 1) * 9 + m - 1;		
+            if (ty[code].name == 2) {
+                ty[code].name = player;
+                code = 0;
+                flag = 0;
+                number_type++;			
+            }
+            else {
+                printf("(%d,%d)已落子,请重新输入\n", m, n); // 预防重复落子 
+            }	
+        } while (flag != 0);
+        printf("%d\n", number_link);				
+    } while (point_end == 0);
+
+end:      // 判断胜方 
+    if (player == 0 && admit_defeat == 0 || player == 1 && admit_defeat == 1) {
+        printf("红子获胜");
+        return player1;
+    }
+    else if (player == 1 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
+        printf("蓝子获胜");
+        return player2;
+    }
+    else if (player == 3) {
+        printf("平局");
+        return NULL;
+    }
+}
+int main(int argc, char *argv[]) {
+	int player1,player2;
+	struct player *find;
+	int online = 0;
+	int pos;
+	int result = showmenu(online);
+	struct playerlist link;
+	struct player player;
+	initlink(&link);
+	
+	freeLink(&link);  //读取保存在本机上的信息 
+	initlink(&link);
+	readstuinfo(&link); 
+	
+	while(result != 9) {
+		showmenuresult(result, online);
+		switch(result) {
+			case 1:
+				addstuinfo(&link);
+				break;
+			case 2:
+				if(link.length == 0){
+					printf("无玩家数据，请先注册\n");
+					break;
+				}
+				printf("请输入uid:");
+				scanf("%d", &pos);					 
+				if(getelement(&link, link.length - pos) != NULL){
+					printf("uid:%d,姓名:%s\n", getelement(&link, link.length - pos) -> uid, getelement(&link, link.length - pos) -> name);  //找到后的打印 	
+				}
+				online = login(getelement(&link, link.length - pos) -> password, getelement(&link, link.length - pos) -> name, getelement(&link, link.length - pos) -> uid);
+				break;
+			case 3:
+				if(link.length == 0){
+					printf("无玩家数据，请先注册\n");
+					break;
+				}
+				printf("请输入插入后的uid：");
+				scanf("%d", &pos);
+				insert_after(&link, link.length - pos + 1, &player);
+				break;
+			case 4:
+				showstuscores(&link);
+				break;
+			case 5:
+				find = getelement(&link, link.length - online);
+				printf("uid:%d,姓名:%s,密码:%s,胜场:%d,败场:%d,平局:%d,积分:%d\n", find -> uid, find -> name,find -> password,find -> win_count, find -> fail_count, find -> points);  //找到个人信息后的打印 
+				break;
+			case 6:
+				change_info(&link, getelement(&link, link.length - online));
+				break;
+			case 7:
+				if(online == link.length){
+					online = delete_link(&link, online, getelement(&link,link.length - online), getelement(&link,link.length - online));					
+				}
+				else{
+					online = delete_link(&link, online, getelement(&link,link.length - online - 1), getelement(&link,link.length - online));
+				}
+				break;
+			case 8:
+				if(link.length < 2){
+					printf("本机玩家数据不足，请先注册\n");
+					break;
+				}
+				else{
+					printf("请输入第一位玩家uid:");
+					scanf("%d", player1);
+					if(player1 < 0 || player1 > link.length){
+						printf("无效的uid\n");
+						break; 
+					} 
+					printf("请输入第二位玩家uid:");
+					scanf("%d", player2);
+					if(player2 < 0 || player2 > link.length){
+						printf("无效的uid\n");
+						break;
+					} 
+					if(game(player1,player2) == player1){               //胜利后的统计和加分 
+						getelement(&link,link.length - player1) -> win_count++;
+						getelement(&link,link.length - player1) -> tie += 2;
+						getelement(&link,link.length - player2) -> fail_count++;		
+					}
+					else if(game(player1,player2) == player2){
+						getelement(&link,link.length - player2) -> win_count++;
+						getelement(&link,link.length - player2) -> tie += 2;
+						getelement(&link,link.length - player1) -> fail_count++;
+					}
+					else if(game(player1,player2) == -1){
+						getelement(&link,link.length - player1) -> tie++;
+						getelement(&link,link.length - player1) -> tie += 1;
+						getelement(&link,link.length - player2) -> tie++;
+						getelement(&link,link.length - player1) -> tie += 1;	
+					}
+				}
+		}
+		result = showmenu(online);
+	}
+	savestuinfo(&link);   //退出前的保存 
+	printf("您选择了退出操作\n");
+	freeLink(&link);
+	return 0;
+}
