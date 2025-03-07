@@ -199,6 +199,7 @@ void addstuinfo(struct playerlist* link) {                  //注册
 	}while(flag != 0);
 	player ->win_count = 0;
 	player -> fail_count = 0;
+	player -> tie = 0;
 	player -> points = 0;
 	printf("注册成功\n");
 	insert(link,0,player); 
@@ -231,7 +232,7 @@ void readstuinfo(struct playerlist*link) {            //读取
 	char name[30];
 	char password[1000];
 	
-	while(fscanf(fp,"%d%s%s%d%d%D%d", &uid, name, password,win_count, fail_count, tie, points) != EOF) {
+	while(fscanf(fp,"%d%s%s%d%d%d%d", &uid, name, password,&win_count, &fail_count, &tie, &points) != EOF) {
 		struct player*player=(struct player*)malloc(sizeof(struct player));
 		player -> win_count = win_count;
 		player -> fail_count = fail_count;
