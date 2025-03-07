@@ -148,14 +148,20 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 }
 int showmenu(int online) {        //菜单 
 	int error; 
-	printf("\t\t|============================请选择您要进行的操作(当前为");
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
+	printf("\t\t|========================请选择您要进行的操作(当前为");
 	if(online == 0){
 		printf("离线");
 	}
 	else{
 		printf("在线"); 
 	}
-	printf("状态)===========|\t\n");
+	printf("状态)===============|\t\n");
+	printf("\t\t|=====");
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+	printf("\t\t\t!非正常退出游戏数据会消失！");
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+	printf("\t\t\t====|\t\n");
 	printf("\t\t|=====\t\t\t\t注册账号1\t\t\t\t====|\t\n");
 	printf("\t\t|=====\t\t\t\t登录账号2\t\t\t\t====|\t\n");
 	printf("\t\t|=====\t\t\t\t插入账号3\t\t\t\t====|\t\n");
@@ -419,8 +425,8 @@ int game() {
         ty[number].name = 2; 
     }
 
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
-
+    
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
     do {
         printf("红子为1,蓝字为0,红子先落，请用序号替换'+'。\n"); // 介绍基本信息 
         player = (player + 1) % 2;
@@ -566,12 +572,12 @@ int game() {
 	        
 			do{
 				printf("请输入列序号:");
+				scanf("%d", &n);
 				if(error != 1){
 					printf("输入错误，"); 
 					while(getchar() != '\n');
 				}	
 			}while(error != 1);
-	        fflush(stdout);
 	        if (n > limit) {
 	            printf("超出限制,请重新输入,");  // 预防超出限制落子 
 	            continue; 
