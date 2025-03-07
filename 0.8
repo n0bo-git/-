@@ -348,7 +348,7 @@ void freeLink(struct playerlist*link) {
 }
 
 
-int game(int player1, int player2) {
+int game() {
     int i, j;
     int point_end = 0;
     int number_link = 1;
@@ -531,15 +531,15 @@ int game(int player1, int player2) {
 
 end:      // 判断胜方 
     if (player == 0 && admit_defeat == 0 || player == 1 && admit_defeat == 1) {
-        printf("红子获胜");
-        return player1;
+        printf("红子获胜\n");
+        return 1;
     }
     else if (player == 1 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
-        printf("蓝子获胜");
-        return player2;
+        printf("蓝子获胜\n");
+        return 2;
     }
     else if (player == 3) {
-        printf("平局");
+        printf("平局\n");
         return NULL;
     }
 }
@@ -589,7 +589,7 @@ int main(int argc, char *argv[]) {
 				break;
 			case 5:
 				find = getelement(&link, link.length - online);
-				printf("uid:%d,姓名:%s,密码:%s,胜场:%d,败场:%d,平局:%d,积分:%d\n", find -> uid, find -> name,find -> password,find -> win_count, find -> fail_count, find -> points);  //找到个人信息后的打印 
+				printf("uid:%d,姓名:%s,密码:%s,胜场:%d,败场:%d,平局:%d,积分:%d\n", find -> uid, find -> name,find -> password,find -> win_count, find -> fail_count, find -> tie, find -> points);  //找到个人信息后的打印 
 				break;
 			case 6:
 				change_info(&link, getelement(&link, link.length - online));
@@ -609,31 +609,31 @@ int main(int argc, char *argv[]) {
 				}
 				else{
 					printf("请输入第一位玩家uid:");
-					scanf("%d", player1);
+					scanf("%d", &player1);
 					if(player1 < 0 || player1 > link.length){
 						printf("无效的uid\n");
 						break; 
 					} 
 					printf("请输入第二位玩家uid:");
-					scanf("%d", player2);
+					scanf("%d", &player2);
 					if(player2 < 0 || player2 > link.length){
 						printf("无效的uid\n");
 						break;
 					} 
-					if(game(player1,player2) == player1){               //胜利后的统计和加分 
-						getelement(&link,link.length - player1) -> win_count++;
+					if(game() == 1){               //胜利后的统计和加分 
+						getelement(&link,link.length - player1) -> win_count += 1;
 						getelement(&link,link.length - player1) -> tie += 2;
-						getelement(&link,link.length - player2) -> fail_count++;		
+						getelement(&link,link.length - player2) -> fail_count += 1;		
 					}
-					else if(game(player1,player2) == player2){
-						getelement(&link,link.length - player2) -> win_count++;
+					else if(game() == 2){
+						getelement(&link,link.length - player2) -> win_count += 1;
 						getelement(&link,link.length - player2) -> tie += 2;
-						getelement(&link,link.length - player1) -> fail_count++;
+						getelement(&link,link.length - player1) -> fail_count += 1;
 					}
-					else if(game(player1,player2) == -1){
-						getelement(&link,link.length - player1) -> tie++;
+					else if(game() == -1){
 						getelement(&link,link.length - player1) -> tie += 1;
-						getelement(&link,link.length - player2) -> tie++;
+						getelement(&link,link.length - player1) -> tie += 1;
+						getelement(&link,link.length - player2) -> tie += 1;
 						getelement(&link,link.length - player1) -> tie += 1;	
 					}
 				}
