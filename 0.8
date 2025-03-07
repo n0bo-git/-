@@ -11,8 +11,7 @@ struct type {        //棋子
     int list;
     int name;
 };
-
-struct player {      //创建链表 
+struct player {      //创建玩家链表 
 	int uid; 
 	char name[30];
 	char password[1000];
@@ -26,6 +25,41 @@ struct playerlist {
 	struct player *head;
 	int length;
 };
+
+struct ranking{         //排行榜 
+	char name[30];
+	int rank;
+	int point;
+};
+
+void rank(struct playerlist *link){            //排名 
+	int i = 0, j, temp_point;
+	char temp_name[30];
+	struct ranking tap[link -> length];
+	struct player *cur = link -> head;
+	do{
+		strcpy(tap -> name, cur -> name);
+		tap -> point = cur -> points;
+		tap -> rank = i + 1;
+		cur = cur -> next;
+		i++;
+	}while(cur != NULL);
+	for(i = 0; i < link -> length; i++){
+		for(j = link -> length; j < i; j--){
+			if(tap[i].point < tap[j].point){
+				temp_point = tap[j].point;
+				tap[j].point = tap[i].point;
+				tap[i].point = temp_point;
+				strcpy(temp_name, tap[j].name);
+				strcpy(tap[j].name, tap[i].name);
+				strcpy(tap[i].name, temp_name);
+			}
+		}
+	}
+	for(i = 0; i < link -> length; i++){
+		printf("排名：%d---昵称：%s---积分：%d\n",tap[i].rank, tap[i].name, tap[i].point);
+	}
+}
 void initlink(struct playerlist *link) {
 	link -> head = NULL;
 	link -> length = 0;
@@ -111,6 +145,7 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 	return 1;
 }
 int showmenu(int online) {        //菜单 
+	int error; 
 	printf("\t\t|============================请选择您要进行的操作(当前为");
 	if(online == 0){
 		printf("离线");
@@ -129,11 +164,18 @@ int showmenu(int online) {        //菜单
 		printf("\t\t|=====\t\t\t\t删除此账号7\t\t\t\t====|\t\n");
 	}
 	printf("\t\t|=====\t\t\t\t开始游戏8\t\t\t\t====|\t\n");
-	printf("\t\t|=====\t\t\t\t退出程序9\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t排行榜9\t\t\t\t\t====|\t\n");
+	printf("\t\t|=====\t\t\t\t退出程序10\t\t\t\t====|\t\n");
 	printf("\t\t|===========================================================================|\t\n");
 	int result=0;
-	printf("请选择您要进行的操作:");
-	scanf("%d", &result);
+	do{
+		printf("请选择您要进行的操作:");
+		error = scanf("%d", &result);
+		if(error != 1){
+			printf("输入错误，"); 
+			while(getchar() != '\n');
+		}	
+	}while(error != 1);
 	return result;
 }
 void showmenuresult(int result,int online) {          //选择操作 
@@ -163,7 +205,10 @@ void showmenuresult(int result,int online) {          //选择操作
 		}
 		case 8:
 			printf("您选择了8开始游戏操作\n");
-				break;	
+				break;
+		case 9:
+			printf("您选择了9排行榜操作\n");
+			break;
 		default:
 			printf("未识别的操作\n");
 			break;
@@ -349,6 +394,7 @@ void freeLink(struct playerlist*link) {
 
 
 int game() {
+	int error;
     int i, j;
     int point_end = 0;
     int number_link = 1;
@@ -429,6 +475,7 @@ int game() {
                 if (ty[j].name == ty[j + 9].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
+                    	point_end == 1; 
                         goto end;	
                     }	
                 }
@@ -445,6 +492,7 @@ int game() {
                 if (ty[i].name == ty[i + 1].name && ty[i].name != 2) {
                     number_link++;
                     if (number_link == 5) {
+                    	point_end == 1;
                         goto end;	
                     }	
                 }
@@ -461,6 +509,7 @@ int game() {
                 if (ty[j].name == ty[j + 10].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
+                    	point_end == 1;
                         goto end;	
                     }	
                 }
@@ -477,6 +526,7 @@ int game() {
                 if (ty[j].name == ty[j + 8].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
+                    	point_end == 1;
                         goto end;	
                     }	
                 }
@@ -485,66 +535,74 @@ int game() {
                 }
             }
         }
-
-        if (admit_defeat == 1) {  // 特殊结束：认输 
-            break;
-        } 
         if (number_type == 81) {  // 特殊结束：平局 
             player = 3;
-            break;
+			goto end;
         }
+		do {   // 落子操作 
+	        do{
+	        printf("请输入行序号(10为认输):");
+				error = scanf("%d", &m);
+				if(error != 1){
+					printf("输入错误，"); 
+					while(getchar() != '\n');
+				}	
+			}while(error != 1);
+	        if (m > limit && m != 10) {
+	            printf("超出限制,请重新输入,"); // 预防超出限制落子 
+	            continue; 
+	        } 
+	        exit = m;                   // 特殊结束：认输
+	        if (exit == 10){
+	        	point_end = 1;
+	            admit_defeat = 1;
+	            break; 
+	    	}
 
-        flag = 1;
-        do {   // 落子操作 
-            printf("请输入行序号(10为认输):");	
-            scanf("%d", &m);
-            if (m > limit && m != 10) {
-                printf("超出限制,请重新输入,"); // 预防超出限制落子 
-                continue; 
-            } 
-            exit = m;
-            if (exit == 10) {
-                admit_defeat = 1;
-                break; 
-            }
-            fflush(stdout);
-            printf("请输入列序号:");
-            scanf("%d", &n);
-            fflush(stdout);
-            if (n > limit) {
-                printf("超出限制,请重新输入,");  // 预防超出限制落子 
-                continue; 
-            } 
-            code = (n - 1) * 9 + m - 1;		
-            if (ty[code].name == 2) {
-                ty[code].name = player;
-                code = 0;
-                flag = 0;
-                number_type++;			
-            }
-            else {
-                printf("(%d,%d)已落子,请重新输入\n", m, n); // 预防重复落子 
-            }	
-        } while (flag != 0);
-        printf("%d\n", number_link);				
+	        
+			do{
+				printf("请输入列序号:");
+				if(error != 1){
+					printf("输入错误，"); 
+					while(getchar() != '\n');
+				}	
+			}while(error != 1);
+	        fflush(stdout);
+	        if (n > limit) {
+	            printf("超出限制,请重新输入,");  // 预防超出限制落子 
+	            continue; 
+	        } 
+	        code = (n - 1) * 9 + m - 1;		
+	        if (ty[code].name == 2) {
+	            ty[code].name = player;
+	            code = 0;
+	            flag = 0;
+	            number_type++;			
+	        }
+	        else {
+	            printf("(%d,%d)已落子,请重新输入\n", m, n); // 预防重复落子 
+	        }	
+	    } while (flag != 0);	
+        flag = 1;   				
     } while (point_end == 0);
-
-end:      // 判断胜方 
-    if (player == 0 && admit_defeat == 0 || player == 1 && admit_defeat == 1) {
+end:          // 判断胜方 
+    if (player == 0 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
         printf("红子获胜\n");
         return 1;
     }
-    else if (player == 1 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
+    else if (player == 1 && admit_defeat == 0 || player == 1 && admit_defeat == 1) {
         printf("蓝子获胜\n");
         return 2;
     }
     else if (player == 3) {
         printf("平局\n");
-        return NULL;
+        return -1;
     }
 }
+
 int main(int argc, char *argv[]) {
-	int player1,player2;
+	int error;
+	int player1, player2, winner;
 	struct player *find;
 	int online = 0;
 	int pos;
@@ -557,7 +615,7 @@ int main(int argc, char *argv[]) {
 	initlink(&link);
 	readstuinfo(&link); 
 	
-	while(result != 9) {
+	while(result != 10) {
 		showmenuresult(result, online);
 		switch(result) {
 			case 1:
@@ -568,11 +626,20 @@ int main(int argc, char *argv[]) {
 					printf("无玩家数据，请先注册\n");
 					break;
 				}
-				printf("请输入uid:");
-				scanf("%d", &pos);					 
-				if(getelement(&link, link.length - pos) != NULL){
-					printf("uid:%d,姓名:%s\n", getelement(&link, link.length - pos) -> uid, getelement(&link, link.length - pos) -> name);  //找到后的打印 	
-				}
+				do{
+					printf("请输入uid:");
+					error = scanf("%d", &pos);
+					if(error != 1){
+						printf("输入错误，"); 
+						while(getchar() != '\n');
+					}	
+				}while(error != 1);
+
+				if(pos < 0 || pos > link.length){
+					printf("查无此人\n");
+					break;
+				}					 
+				printf("uid:%d,姓名:%s\n", getelement(&link, link.length - pos) -> uid, getelement(&link, link.length - pos) -> name);  //找到后的打印 
 				online = login(getelement(&link, link.length - pos) -> password, getelement(&link, link.length - pos) -> name, getelement(&link, link.length - pos) -> uid);
 				break;
 			case 3:
@@ -581,7 +648,14 @@ int main(int argc, char *argv[]) {
 					break;
 				}
 				printf("请输入插入后的uid：");
-				scanf("%d", &pos);
+				do{
+					printf("请输入uid:");
+					error = scanf("%d", &pos);
+					if(error != 1){
+						printf("输入错误，"); 
+						while(getchar() != '\n');
+					}	
+				}while(error != 1);
 				insert_after(&link, link.length - pos + 1, &player);
 				break;
 			case 4:
@@ -604,39 +678,58 @@ int main(int argc, char *argv[]) {
 				break;
 			case 8:
 				if(link.length < 2){
-					printf("本机玩家数据不足，请先注册\n");
+					printf("本机玩家数不足，至少需要两人，当前人数:%d,请先注册\n", link.length);
 					break;
 				}
 				else{
+					do{
 					printf("请输入第一位玩家uid:");
-					scanf("%d", &player1);
+					error = scanf("%d", &player1);
+					if(error != 1){
+						printf("输入错误，"); 
+						while(getchar() != '\n');
+					}	
+				}while(error != 1);
 					if(player1 < 0 || player1 > link.length){
 						printf("无效的uid\n");
 						break; 
 					} 
+					do{
 					printf("请输入第二位玩家uid:");
-					scanf("%d", &player2);
-					if(player2 < 0 || player2 > link.length){
+					error = scanf("%d", &player2);
+					if(error != 1){
+						printf("输入错误，"); 
+						while(getchar() != '\n');
+					}	
+				}while(error != 1);
+					if(player2 < 0 || player2 > link.length || player2 == player1){
 						printf("无效的uid\n");
 						break;
-					} 
-					if(game() == 1){               //胜利后的统计和加分 
+					}
+					winner = game();
+					if(winner == 1){               //胜利后的统计和加分 
 						getelement(&link,link.length - player1) -> win_count += 1;
-						getelement(&link,link.length - player1) -> tie += 2;
-						getelement(&link,link.length - player2) -> fail_count += 1;		
+						getelement(&link,link.length - player1) -> points += 2;
+						getelement(&link,link.length - player2) -> fail_count += 1;
+						break;		
 					}
-					else if(game() == 2){
+					else if(winner == 2){
 						getelement(&link,link.length - player2) -> win_count += 1;
-						getelement(&link,link.length - player2) -> tie += 2;
+						getelement(&link,link.length - player2) -> points += 2;
 						getelement(&link,link.length - player1) -> fail_count += 1;
+						break;
 					}
-					else if(game() == -1){
+					else if(winner == -1){
 						getelement(&link,link.length - player1) -> tie += 1;
-						getelement(&link,link.length - player1) -> tie += 1;
+						getelement(&link,link.length - player1) -> points += 1;
 						getelement(&link,link.length - player2) -> tie += 1;
-						getelement(&link,link.length - player1) -> tie += 1;	
+						getelement(&link,link.length - player1) -> points += 1;
+						break;	
 					}
 				}
+			case 9:
+				rank(&link);
+				break;
 		}
 		result = showmenu(online);
 	}
