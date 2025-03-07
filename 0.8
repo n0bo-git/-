@@ -32,33 +32,35 @@ struct ranking{         //排行榜
 	int point;
 };
 
-void rank(struct playerlist *link){            //排名 
-	int i = 0, j, temp_point;
-	char temp_name[30];
-	struct ranking tap[link -> length];
-	struct player *cur = link -> head;
-	do{
-		strcpy(tap -> name, cur -> name);
-		tap -> point = cur -> points;
-		tap -> rank = i + 1;
-		cur = cur -> next;
-		i++;
-	}while(cur != NULL);
-	for(i = 0; i < link -> length; i++){
-		for(j = link -> length; j < i; j--){
-			if(tap[i].point < tap[j].point){
-				temp_point = tap[j].point;
-				tap[j].point = tap[i].point;
-				tap[i].point = temp_point;
-				strcpy(temp_name, tap[j].name);
-				strcpy(tap[j].name, tap[i].name);
-				strcpy(tap[i].name, temp_name);
-			}
-		}
-	}
-	for(i = 0; i < link -> length; i++){
-		printf("排名：%d---昵称：%s---积分：%d\n",tap[i].rank, tap[i].name, tap[i].point);
-	}
+void rank(struct playerlist *link) {             //排名 
+    int i, j, temp_point;
+    char temp_name[30];
+    struct ranking tap[link -> length];
+    struct player *cur = link -> head;
+    for(i = 0; i < link -> length; i++){
+        strcpy(tap[i].name, cur -> name);
+        tap[i].point = cur -> points;
+        tap[i].rank = i + 1;
+        cur = cur -> next;
+    }                                                
+    for(i = 0; i < link -> length - 1; i++){           
+        for(j = link -> length - 1; j > i; j--){
+            if(tap[j].point > tap[j - 1].point){
+                temp_point = tap[j].point;
+                tap[j].point = tap[j - 1].point;
+                tap[j - 1].point = temp_point;
+                strcpy(temp_name, tap[j].name);
+                strcpy(tap[j].name, tap[j - 1].name);
+                strcpy(tap[j - 1].name, temp_name);
+            }
+        }
+    }
+    for(i = 0; i < link -> length; i++){
+        tap[i].rank = i + 1;
+    }
+    for(i = 0; i < link -> length; i++){
+        printf("排名：%d---昵称：%s---积分：%d\n", tap[i].rank, tap[i].name, tap[i].point);
+    }
 }
 void initlink(struct playerlist *link) {
 	link -> head = NULL;
