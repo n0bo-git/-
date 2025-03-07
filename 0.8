@@ -242,6 +242,8 @@ void addstuinfo(struct playerlist* link) {                  //注册
 		}
 		else{
 			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			eng_count = 0;
+			num_count = 0; 
 		}		
 	}while(flag != 0);
 	player ->win_count = 0;
@@ -651,6 +653,7 @@ int main(int argc, char *argv[]) {
 				}
 				printf("请输入插入后的uid：");
 				do{
+					
 					printf("请输入uid:");
 					error = scanf("%d", &pos);
 					if(error != 1){
