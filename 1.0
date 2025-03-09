@@ -31,7 +31,9 @@ struct ranking{         //排行榜
 	int rank;
 	int point;
 };
-
+void clean_screen(){                //清屏 
+	printf("\033[2J\033[1;1H");         //ANSI转义序列 
+} 
 void rank(struct playerlist *link) {             //排名 
     int i, j, temp_point;
     char temp_name[30];
@@ -79,7 +81,7 @@ struct player * getelement(struct playerlist *link, int pos) {   //登录,查找
 	}
 	return p;
 }
-int insert(struct playerlist *link, int pos, struct player* player) {     //为了让下面内段不报错 
+int insert(struct playerlist *link, int pos, struct player* player) {     //初始化需要，为了让下面内段不报错 
 	if(pos < 0 || pos > link -> length) {
 		return NULL;
 	}
@@ -593,7 +595,8 @@ int game() {
 	            printf("(%d,%d)已落子,请重新输入\n", m, n); // 预防重复落子 
 	        }	
 	    } while (flag != 0);	
-        flag = 1;   				
+        flag = 1;
+		clean_screen(); 				
     } while (point_end == 0);
 end:          // 判断胜方 
     if (player == 0 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
@@ -742,6 +745,7 @@ int main(int argc, char *argv[]) {
 				rank(&link);
 				break;
 		}
+		clean_screen();
 		result = showmenu(online);
 	}
 	savestuinfo(&link);   //退出前的保存 
