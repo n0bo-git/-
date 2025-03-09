@@ -745,7 +745,6 @@ int main(int argc, char *argv[]) {
 				rank(&link);
 				break;
 		}
-		clean_screen();
 		result = showmenu(online);
 	}
 	savestuinfo(&link);   //退出前的保存 
