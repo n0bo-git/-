@@ -13,7 +13,7 @@ struct type {        //棋子
 };
 struct player {      //创建玩家链表 
 	int uid; 
-	char name[30];
+	char name[1000];
 	char password[1000];
 	int win_count;
 	int fail_count;
@@ -27,7 +27,7 @@ struct playerlist {
 };
 
 struct ranking{         //排行榜 
-	char name[30];
+	char name[1000];
 	int rank;
 	int point;
 };
@@ -36,7 +36,7 @@ void clean_screen(){                //清屏
 } 
 void rank(struct playerlist *link) {             //排名 
     int i, j, temp_point;
-    char temp_name[30];
+    char temp_name[1000];
     struct ranking tap[link -> length];
     struct player *cur = link -> head;
     for(i = 0; i < link -> length; i++){
@@ -153,14 +153,18 @@ int showmenu(int online) {        //菜单
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
 	printf("\t\t|========================请选择您要进行的操作(当前为");
 	if(online == 0){
+		SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_BLUE);
 		printf("离线");
+		SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	}
 	else{
-		printf("在线"); 
+		SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+		printf("在线");
+		SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); 
 	}
 	printf("状态)===============|\t\n");
 	printf("\t\t|=====");
-	SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN);
 	printf("\t\t\t!非正常退出游戏数据会消失！");
 	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	printf("\t\t\t====|\t\n");
@@ -286,7 +290,7 @@ void readstuinfo(struct playerlist*link) {            //读取
 	FILE*fp=fopen("player.txt", "r");
 	
 	int uid,win_count, fail_count, tie, points;
-	char name[30];
+	char name[1000];
 	char password[1000];
 	
 	while(fscanf(fp,"%d%s%s%d%d%d%d", &uid, name, password,&win_count, &fail_count, &tie, &points) != EOF) {
@@ -318,7 +322,7 @@ void showstuscores(struct playerlist*link) {                //打印基本信息
 		while(cur != NULL);
 	}
 }
-int login(char Model_password[1000], char player_name[30], int player){    //登录 
+int login(char Model_password[1000], char player_name[1000], int player){    //登录 
 	char password[1000];
 	int try_count = 0;
 	int flag = 1;
@@ -347,7 +351,7 @@ int login(char Model_password[1000], char player_name[30], int player){    //登
 }
 void change_info(struct playerlist*link,struct player *player){            //修改个人信息 
 	int i,flag = 1;
-	char name[30];
+	char name[1000];
 	char password[1000];
 	int num_count = 0, eng_count = 0;
 	printf("请输入新昵称:");
