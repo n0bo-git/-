@@ -61,7 +61,7 @@ void rank(struct playerlist *link) {             //排名
         tap[i].rank = i + 1;
     }
     for(i = 0; i < link -> length; i++){
-        printf("排名：%d---昵称：%s---积分：%d\n", tap[i].rank, tap[i].name, tap[i].point);
+        printf("排名:%d --- 昵称:%s --- 积分:%d\n", tap[i].rank, tap[i].name, tap[i].point);
     }
 }
 void initlink(struct playerlist *link) {
@@ -479,9 +479,7 @@ int game() {
             printf("----");
         }
         printf("---|\n");
-
-        // 竖线五子判断
-        for (i = 0; i < 45; i++) {   
+        for (i = 0; i < 45; i++) {    // 竖线五子判断
             number_link = 1;
             for (j = i; j < j + 72; j += 9) {
                 if (ty[j].name == ty[j + 9].name && ty[j].name != 2) {
@@ -495,10 +493,8 @@ int game() {
                     break;
                 }
             }
-        }
-
-        // 横线五子判断
-        for (j = 0; j <= 77; j++) {   
+        } 
+        for (j = 0; j <= 77; j++) {    // 横线五子判断
             number_link = 1;
             for (i = j; i < i + 9; i++) {
                 if (ty[i].name == ty[i + 1].name && ty[i].name != 2) {
@@ -513,11 +509,9 @@ int game() {
                 }
             }
         }
-
-        // 正斜线五子判断 (从左上到右下)
-        for (i = 0; i < 45; i++) {   
+        for (i = 0; i < 45; i++) {     // 斜线五子判断
             number_link = 1;
-            for (j = i; j < ty_limit; j += 10) { // 斜线间隔为10
+            for (j = i; j < ty_limit; j += 10) {
                 if (ty[j].name == ty[j + 10].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
@@ -530,11 +524,9 @@ int game() {
                 }
             }
         }
-
-        // 反斜线五子判断 (从左下到右上)
         for (i = 8; i < 53; i++) {   
             number_link = 1;
-            for (j = i; j >= 0 && j + 8 < ty_limit; j += 8) { // 斜线间隔为8
+            for (j = i; j >= 0 && j + 8 < ty_limit; j += 8) { 
                 if (ty[j].name == ty[j + 8].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
@@ -598,13 +590,18 @@ int game() {
         flag = 1;
 		clean_screen(); 				
     } while (point_end == 0);
-end:          // 判断胜方 
+end:             // 判断胜方
+    clean_screen();           
     if (player == 0 && admit_defeat == 0 || player == 0 && admit_defeat == 1) {
-        printf("红子获胜\n");
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+		printf("红子获胜\n");
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         return 1;
     }
     else if (player == 1 && admit_defeat == 0 || player == 1 && admit_defeat == 1) {
-        printf("蓝子获胜\n");
+        SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
+		printf("蓝子获胜\n");
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         return 2;
     }
     else if (player == 3) {
@@ -612,7 +609,6 @@ end:          // 判断胜方
         return -1;
     }
 }
-
 int main(int argc, char *argv[]) {
 	int error;
 	int player1, player2, winner;
@@ -745,8 +741,7 @@ int main(int argc, char *argv[]) {
 				rank(&link);
 				break;
 		}
-		result = showmenu(online);
-	 
+		result = showmenu(online);	
 	}
 	
 	savestuinfo(&link);   //退出前的保存 
