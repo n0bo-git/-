@@ -25,7 +25,6 @@ struct playerlist {
 	struct player *head;
 	int length;
 };
-
 struct ranking{         //排行榜 
 	char name[1000];
 	int rank;
@@ -40,6 +39,7 @@ void rank(struct playerlist *link) {             //排名
     struct ranking tap[link -> length];
     struct player *cur = link -> head;
     for(i = 0; i < link -> length; i++){
+    	cur -> points = cur -> win_count * 2 + cur -> tie; 
         strcpy(tap[i].name, cur -> name);
         tap[i].point = cur -> points;
         tap[i].rank = i + 1;
@@ -68,7 +68,6 @@ void initlink(struct playerlist *link) {
 	link -> head = NULL;
 	link -> length = 0;
 }
-
 struct player * getelement(struct playerlist *link, int pos) {   //登录,查找,修改 
 	if(pos < 0 || pos > link -> length) {	
 		printf("查无此人\n"); 
@@ -97,7 +96,6 @@ int insert(struct playerlist *link, int pos, struct player* player) {     //初�
 	link -> length++;  //更新链表长度 
 	return 1;
 }
-
 int insert_after(struct playerlist *link, int pos, struct player *player) {  //插入需要 
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
@@ -393,6 +391,7 @@ int delete_link(struct playerlist *link,int online,struct player *last_player, s
 		                         
 	free(next_player);	
 	link -> length--;
+	printf("删除成功\n");
 	return 0;	
 }
 void freeLink(struct playerlist*link) {
@@ -407,8 +406,6 @@ void freeLink(struct playerlist*link) {
 	}
 	link -> length = 0;
 }
-
-
 int game() {
 	int error;
     int i, j;
