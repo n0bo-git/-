@@ -629,6 +629,7 @@ int main(int argc, char *argv[]) {
 	readstuinfo(&link); 
 	
 	while(result != 10) {
+		clean_screen();
 		showmenuresult(result, online);
 		switch(result) {
 			case 1:
@@ -660,10 +661,9 @@ int main(int argc, char *argv[]) {
 					printf("无玩家数据，请先注册\n");
 					break;
 				}
-				printf("请输入插入后的uid：");
 				do{
 					
-					printf("请输入uid:");
+					printf("请输入插入后的uid:");
 					error = scanf("%d", &pos);
 					if(error != 1){
 						printf("输入错误，"); 
@@ -746,7 +746,9 @@ int main(int argc, char *argv[]) {
 				break;
 		}
 		result = showmenu(online);
+	 
 	}
+	
 	savestuinfo(&link);   //退出前的保存 
 	printf("您选择了退出操作\n");
 	freeLink(&link);
