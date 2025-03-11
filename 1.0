@@ -431,7 +431,7 @@ int game() {
     
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
     do {
-        printf("红子为1,蓝字为0,红子先落，请用序号替换'+'。\n"); // 介绍基本信息 
+        printf("红子为1,蓝子为0,红子先落，请用序号替换'+'。\n"); // 介绍基本信息 
         player = (player + 1) % 2;
         printf("当前玩家:P%d\n", player);
 
@@ -674,6 +674,7 @@ int main(int argc, char *argv[]) {
 				break;
 			case 5:
 				find = getelement(&link, link.length - online);
+				find -> points = find -> win_count * 2 + find -> tie; 
 				printf("uid:%d,姓名:%s,密码:%s,胜场:%d,败场:%d,平局:%d,积分:%d\n", find -> uid, find -> name,find -> password,find -> win_count, find -> fail_count, find -> tie, find -> points);  //找到个人信息后的打印 
 				break;
 			case 6:
@@ -720,21 +721,17 @@ int main(int argc, char *argv[]) {
 					winner = game();
 					if(winner == 1){               //胜利后的统计和加分 
 						getelement(&link,link.length - player1) -> win_count += 1;
-						getelement(&link,link.length - player1) -> points += 2;
 						getelement(&link,link.length - player2) -> fail_count += 1;
 						break;		
 					}
 					else if(winner == 2){
 						getelement(&link,link.length - player2) -> win_count += 1;
-						getelement(&link,link.length - player2) -> points += 2;
 						getelement(&link,link.length - player1) -> fail_count += 1;
 						break;
 					}
 					else if(winner == -1){
 						getelement(&link,link.length - player1) -> tie += 1;
-						getelement(&link,link.length - player1) -> points += 1;
 						getelement(&link,link.length - player2) -> tie += 1;
-						getelement(&link,link.length - player1) -> points += 1;
 						break;	
 					}
 				}
