@@ -305,7 +305,7 @@ void readstuinfo(struct playerlist*link) {            //读取
 	}
 	fclose(fp);
 }
-void showstuscores(struct playerlist*link) {                //打印基本信息 
+void showplayerscores(struct playerlist*link) {                //打印基本信息 
 	struct player*cur = link -> head;
 	if(link -> length == 0) {
 		printf("无玩家信息,请先注册\n");
@@ -670,7 +670,7 @@ int main(int argc, char *argv[]) {
 				insert_after(&link, link.length - pos + 1, &player);
 				break;
 			case 4:
-				showstuscores(&link);
+				showplayerscores(&link);
 				break;
 			case 5:
 				find = getelement(&link, link.length - online);
