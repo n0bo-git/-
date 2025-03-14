@@ -30,6 +30,27 @@ struct ranking{         //排行榜
 	int rank;
 	int point;
 };
+void cartoon(){
+	int i;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	printf("====================\n");
+	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);	
+	for(i = 0; i < 10; i++){
+		printf("[");
+		printf("]");
+		if(i == 7){
+			sleep(2);	
+		}
+		else if(i == 2 || i == 5){
+			continue;
+		}
+		else{
+			sleep(1);
+		}	
+	}
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+	printf("\n");	
+}
 void clean_screen(){                //清屏 
 	printf("\033[2J\033[1;1H");         //ANSI转义序列 
 } 
@@ -226,7 +247,7 @@ void showmenuresult(int result,int online) {          //选择操作
 			break;
 	}
 }
-void addstuinfo(struct playerlist* link) {                  //注册
+void addplayerinfo(struct playerlist* link) {                  //注册
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
 	
@@ -263,7 +284,7 @@ void addstuinfo(struct playerlist* link) {                  //注册
 	printf("注册成功\n");
 	insert(link,0,player); 
 }
-void savestuinfo(struct playerlist*link) {               //保存 
+void saveplayerinfo(struct playerlist*link) {               //保存 
 	if(link -> length == 0) {
 		printf("没有玩家数据,无法保存\n"); 
 		return NULL; 
@@ -284,7 +305,7 @@ void savestuinfo(struct playerlist*link) {               //保存
 		printf("保存成功\n"); 
 	}
 }
-void readstuinfo(struct playerlist*link) {            //读取 
+void readplayerinfo(struct playerlist*link) {            //读取 
 	FILE*fp=fopen("player.txt", "r");
 	
 	int uid,win_count, fail_count, tie, points;
@@ -406,7 +427,7 @@ void freeLink(struct playerlist*link) {
 	}
 	link -> length = 0;
 }
-int game() {
+int game() {         //游戏 
 	int error;
     int i, j;
     int point_end = 0;
@@ -611,26 +632,33 @@ end:             // 判断胜方
     }
 }
 int main(int argc, char *argv[]) {
+	int begin;
 	int error;
 	int player1, player2, winner;
 	struct player *find;
 	int online = 0;
 	int pos;
-	int result = showmenu(online);
+	int result;
 	struct playerlist link;
 	struct player player;
-	initlink(&link);
+	printf("注意事项。\n");
+	printf("玩家账号使用uid登录，忘记uid请打印本机数据查看，玩家注册时系统自动分配uid。\n");
+	printf("插入账号后玩家uid可能发生变化，请查看并记住自己的uid。\n"); 
+	printf("使用前需要初始化，请耐心等待，预计等待时间10s\n");
 	
 	freeLink(&link);  //读取保存在本机上的信息 
 	initlink(&link);
-	readstuinfo(&link); 
+	readplayerinfo(&link); 
+	cartoon();
 	
+	clean_screen();
+	result = showmenu(online);
 	while(result != 10) {
 		clean_screen();
 		showmenuresult(result, online);
 		switch(result) {
 			case 1:
-				addstuinfo(&link);
+				addplayerinfo(&link);
 				break;
 			case 2:
 				if(link.length == 0){
@@ -742,7 +770,7 @@ int main(int argc, char *argv[]) {
 		result = showmenu(online);	
 	}
 	
-	savestuinfo(&link);   //退出前的保存 
+	saveplayerinfo(&link);   //退出前的保存 
 	printf("您选择了退出操作\n");
 	freeLink(&link);
 	return 0;
