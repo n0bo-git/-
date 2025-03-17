@@ -132,12 +132,12 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 		struct player *prev = getelement(link,pos - 1);
 		player -> next = prev -> next;
 		prev -> next = player;
+		struct player *cur = link -> head;
+		do {                 //后面的uid都加1 
+			cur -> uid += 1;
+			cur = cur -> next;
+		}while(cur -> next != NULL);
 	}
-	struct player *cur = link -> head;
-	do {                 //后面的uid都加1 
-		cur -> uid += 1;
-		cur = cur -> next;
-	}while(cur -> next != NULL);
 	player -> uid = link -> length - pos + 1;
 	printf("请输入姓名:");
 	scanf("%s",player -> name);
@@ -168,7 +168,8 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 	return 1;
 }
 int showmenu(int online) {        //菜单 
-	int error; 
+	int error;
+	int result=0; 
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
 	printf("\t\t|========================请选择您要进行的操作(当前为");
 	if(online == 0){
@@ -200,18 +201,17 @@ int showmenu(int online) {        //菜单
 	printf("\t\t|=====\t\t\t\t排行榜9\t\t\t\t\t====|\t\n");
 	printf("\t\t|=====\t\t\t\t退出程序10\t\t\t\t====|\t\n");
 	printf("\t\t|===========================================================================|\t\n");
-	int result=0;
 	do{
 		printf("请选择您要进行的操作:");
 		error = scanf("%d", &result);
-		if(error != 1){
+		if(error != 1 || online == 0 && result == 5 || online == 0 && result == 6 || online == 0 && result == 7){
 			printf("输入错误，"); 
 			while(getchar() != '\n');
 		}	
-	}while(error != 1);
+	}while(error != 1 || online == 0 && result == 5 || online == 0 && result == 6 || online == 0 && result == 7);
 	return result;
 }
-void showmenuresult(int result,int online) {          //选择操作 
+void showmenuresult(int result,int online) {          //选择操作
 	switch(result) {
 		case 1:
 			printf("您选择了1注册账号操作\n");
@@ -225,17 +225,15 @@ void showmenuresult(int result,int online) {          //选择操作
 		case 4:
 			printf("您选择了4打印本机数据操作\n");
 			break;
-		if(online != 0){
-			case 5:
-				printf("您选择了5查看个人信息操作\n");
-				break;
-			case 6:
+		case 5:
+			printf("您选择了5查看个人信息操作\n");
+			break;
+		case 6:
 				printf("您选择了6修改个人信息操作\n");
 				break;
-			case 7:
-				printf("您选择了7删除此账号\n");
-				break;
-		}
+		case 7:
+			printf("您选择了7删除此账号\n");
+			break;
 		case 8:
 			printf("您选择了8开始游戏操作\n");
 				break;
@@ -402,12 +400,12 @@ int delete_link(struct playerlist *link,int online,struct player *last_player, s
 		link -> head = next_player -> next;
 	}
 	else{
+		last_player -> next = next_player -> next;
 		struct player *cur = link -> head;           //后面的uid都减1
 		do{
 			cur -> uid -= 1;
 			cur = cur -> next;
 		}while(cur -> next != NULL);
-		last_player -> next = next_player -> next;	
 	}
 		                         
 	free(next_player);	
@@ -537,7 +535,7 @@ int game() {         //游戏
                 if (ty[j].name == ty[j + 10].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
-                    	point_end == 1;
+                    	point_end = 1;
                         goto end;	
                     }	
                 }
@@ -649,8 +647,8 @@ int main(int argc, char *argv[]) {
 	freeLink(&link);  //读取保存在本机上的信息 
 	initlink(&link);
 	readplayerinfo(&link); 
-	cartoon();
 	
+	cartoon(); 
 	clean_screen();
 	result = showmenu(online);
 	while(result != 10) {
@@ -659,6 +657,11 @@ int main(int argc, char *argv[]) {
 		switch(result) {
 			case 1:
 				addplayerinfo(&link);
+				
+				saveplayerinfo(&link);  
+				initlink(&link);
+				readplayerinfo(&link);
+				 
 				break;
 			case 2:
 				if(link.length == 0){
@@ -696,6 +699,11 @@ int main(int argc, char *argv[]) {
 					}	
 				}while(error != 1);
 				insert_after(&link, link.length - pos + 1, &player);
+				
+				saveplayerinfo(&link);  
+				initlink(&link);
+				readplayerinfo(&link); 
+				
 				break;
 			case 4:
 				showplayerscores(&link);
@@ -715,6 +723,11 @@ int main(int argc, char *argv[]) {
 				else{
 					online = delete_link(&link, online, getelement(&link,link.length - online - 1), getelement(&link,link.length - online));
 				}
+				
+				saveplayerinfo(&link);  
+				initlink(&link);
+				readplayerinfo(&link);
+				 
 				break;
 			case 8:
 				if(link.length < 2){
@@ -749,19 +762,22 @@ int main(int argc, char *argv[]) {
 					winner = game();
 					if(winner == 1){               //胜利后的统计和加分 
 						getelement(&link,link.length - player1) -> win_count += 1;
-						getelement(&link,link.length - player2) -> fail_count += 1;
-						break;		
+						getelement(&link,link.length - player2) -> fail_count += 1;		
 					}
 					else if(winner == 2){
 						getelement(&link,link.length - player2) -> win_count += 1;
 						getelement(&link,link.length - player1) -> fail_count += 1;
-						break;
 					}
 					else if(winner == -1){
 						getelement(&link,link.length - player1) -> tie += 1;
 						getelement(&link,link.length - player2) -> tie += 1;
-						break;	
 					}
+					
+					saveplayerinfo(&link);  
+					initlink(&link);
+					readplayerinfo(&link); 
+					
+					break;
 				}
 			case 9:
 				rank(&link);
