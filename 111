@@ -123,6 +123,10 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",player -> password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;	
+		}
 		for(i = 0; i < strlen(player -> password); i++){
 			if(isdigit(player -> password[i])){
 				num_count++;
@@ -227,6 +231,7 @@ void showmenuresult(int result,int online) {          //选择操作
 void addplayerinfo(struct playerlist* link) {                  //注册
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
+	char buffer[100];
 	
 	struct player *player=(struct player*)malloc(sizeof(struct player));
 	player -> next = NULL;
@@ -237,6 +242,10 @@ void addplayerinfo(struct playerlist* link) {                  //注册
 	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",player -> password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;	
+		}
 		for(i = 0; i < strlen(player -> password); i++){
 			if(isdigit(player -> password[i])){
 				num_count++;
@@ -355,6 +364,10 @@ void change_info(struct playerlist*link,struct player *player){            //修
 	printf("请输入新密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;	
+		}
 		for(i = 0; i < strlen(password); i++){
 			if(isdigit(password[i])){
 				num_count++;
