@@ -97,6 +97,7 @@ int insert(struct playerlist *link, int pos, struct player* player) {     //初�
 	return 1;
 }
 int insert_after(struct playerlist *link, int pos, struct player *player) {  //插入需要 
+	char buffer[100];
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
 	if(pos < 0 || pos > link -> length) {
@@ -355,6 +356,7 @@ int login(char Model_password[1000], char player_name[1000], int player){    //�
 	return player;
 }
 void change_info(struct playerlist*link,struct player *player){            //修改个人信息 
+	char buffer[100];
 	int i,flag = 1;
 	char name[1000];
 	char password[1000];
