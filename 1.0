@@ -589,12 +589,15 @@ int game() {         //游戏
 	        do{
 	        printf("请输入行序号(10为认输):");
 				error = scanf("%d", &m);
+				if(space_check() == 1){
+					m = -1;  
+				}
 				if(error != 1){
 					printf("输入错误，"); 
 					while(getchar() != '\n');
 				}	
 			}while(error != 1);
-	        if (m > limit && m != 10) {
+	        if (m > limit && m != 10 || m <= 0) {
 	            printf("超出限制,请重新输入,"); // 预防超出限制落子 
 	            continue; 
 	        } 
@@ -605,16 +608,18 @@ int game() {         //游戏
 	            break; 
 	    	}
 
-	        
 			do{
 				printf("请输入列序号:");
 				scanf("%d", &n);
+				if(space_check() == 1){
+					n = -1;  
+				}
 				if(error != 1){
 					printf("输入错误，"); 
 					while(getchar() != '\n');
 				}	
 			}while(error != 1);
-	        if (n > limit) {
+	        if (n > limit || n <= 0) {
 	            printf("超出限制,请重新输入,");  // 预防超出限制落子 
 	            continue; 
 	        } 
