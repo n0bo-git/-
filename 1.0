@@ -30,26 +30,14 @@ struct ranking{         //排行榜
 	int rank;
 	int point;
 };
-void cartoon(){
-	int i;
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	printf("====================\n");
-	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);	
-	for(i = 0; i < 10; i++){
-		printf("[");
-		printf("]");
-		if(i == 7){
-			sleep(2);	
-		}
-		else if(i == 2 || i == 5){
-			continue;
-		}
-		else{
-			sleep(1);
-		}	
+int space_check(){
+	char buffer[100];
+	if(scanf("%[^\n]", buffer) == 1){
+		return 1;	
 	}
-	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-	printf("\n");	
+	else{
+		return 0;
+	}
 }
 void clean_screen(){                //清屏 
 	printf("\033[2J\033[1;1H");         //ANSI转义序列 
@@ -118,6 +106,7 @@ int insert(struct playerlist *link, int pos, struct player* player) {     //初�
 	return 1;
 }
 int insert_after(struct playerlist *link, int pos, struct player *player) {  //插入需要 
+	char buffer[100];
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
 	if(pos < 0 || pos > link -> length) {
@@ -132,18 +121,25 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 		struct player *prev = getelement(link,pos - 1);
 		player -> next = prev -> next;
 		prev -> next = player;
-		struct player *cur = link -> head;
-		do {                 //后面的uid都加1 
-			cur -> uid += 1;
-			cur = cur -> next;
-		}while(cur -> next != NULL);
 	}
+	struct player *cur = link -> head;
+	do {                 //后面的uid都加1 
+		cur -> uid += 1;
+		cur = cur -> next;
+	}while(cur -> next != NULL);
 	player -> uid = link -> length - pos + 1;
 	printf("请输入姓名:");
 	scanf("%s",player -> name);
+	if(scanf("%[^\n]", buffer) == 1){
+		printf("输入空格错误，您的昵称为%s\n", player -> name);
+	}
 	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",player -> password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;
+		}
 		for(i = 0; i < strlen(player -> password); i++){
 			if(isdigit(player -> password[i])){
 				num_count++;
@@ -159,7 +155,7 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 		}		
 	}while(flag != 0);
-	player ->win_count = 0;
+	player -> win_count = 0;
 	player -> fail_count = 0;
 	player -> tie = 0;
 	player -> points = 0;
@@ -168,8 +164,7 @@ int insert_after(struct playerlist *link, int pos, struct player *player) {  //�
 	return 1;
 }
 int showmenu(int online) {        //菜单 
-	int error;
-	int result=0; 
+	int error; 
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // 为了上色 
 	printf("\t\t|========================请选择您要进行的操作(当前为");
 	if(online == 0){
@@ -201,17 +196,21 @@ int showmenu(int online) {        //菜单
 	printf("\t\t|=====\t\t\t\t排行榜9\t\t\t\t\t====|\t\n");
 	printf("\t\t|=====\t\t\t\t退出程序10\t\t\t\t====|\t\n");
 	printf("\t\t|===========================================================================|\t\n");
+	int result=0;
 	do{
 		printf("请选择您要进行的操作:");
 		error = scanf("%d", &result);
-		if(error != 1 || online == 0 && result == 5 || online == 0 && result == 6 || online == 0 && result == 7){
+		if(space_check() == 1){
+			result = 0; 
+		}
+		if(error != 1){
 			printf("输入错误，"); 
 			while(getchar() != '\n');
 		}	
-	}while(error != 1 || online == 0 && result == 5 || online == 0 && result == 6 || online == 0 && result == 7);
+	}while(error != 1);
 	return result;
 }
-void showmenuresult(int result,int online) {          //选择操作
+void showmenuresult(int result,int online) {          //选择操作 
 	switch(result) {
 		case 1:
 			printf("您选择了1注册账号操作\n");
@@ -225,15 +224,17 @@ void showmenuresult(int result,int online) {          //选择操作
 		case 4:
 			printf("您选择了4打印本机数据操作\n");
 			break;
-		case 5:
-			printf("您选择了5查看个人信息操作\n");
-			break;
-		case 6:
+		if(online != 0){
+			case 5:
+				printf("您选择了5查看个人信息操作\n");
+				break;
+			case 6:
 				printf("您选择了6修改个人信息操作\n");
 				break;
-		case 7:
-			printf("您选择了7删除此账号\n");
-			break;
+			case 7:
+				printf("您选择了7删除此账号\n");
+				break;
+		}
 		case 8:
 			printf("您选择了8开始游戏操作\n");
 				break;
@@ -248,6 +249,7 @@ void showmenuresult(int result,int online) {          //选择操作
 void addplayerinfo(struct playerlist* link) {                  //注册
 	int eng_count = 0, num_count = 0;
 	int i, flag = 1;
+	char buffer[100];
 	
 	struct player *player=(struct player*)malloc(sizeof(struct player));
 	player -> next = NULL;
@@ -255,9 +257,16 @@ void addplayerinfo(struct playerlist* link) {                  //注册
 		
 	printf("请输入昵称:");
 	scanf("%s",player -> name);
+	if(scanf("%[^\n]", buffer) == 1){
+		printf("输入空格错误，您的昵称为%s\n", player -> name);
+	}
 	printf("请输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",player -> password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;
+		}
 		for(i = 0; i < strlen(player -> password); i++){
 			if(isdigit(player -> password[i])){
 				num_count++;
@@ -350,6 +359,11 @@ int login(char Model_password[1000], char player_name[1000], int player){    //�
 			return 0;
 		}
 		scanf("%s", password);
+		if(space_check() == 1){
+			try_count++;
+			printf("请不要输入空格，您还有%d次机会，请重新输入密码:", 3 - try_count);
+			continue;
+		}
 		if(strcmp(password,Model_password) == 0){
 			flag = 0;
 		}
@@ -371,11 +385,19 @@ void change_info(struct playerlist*link,struct player *player){            //修
 	char name[1000];
 	char password[1000];
 	int num_count = 0, eng_count = 0;
+	char buffer[100];
 	printf("请输入新昵称:");
 	scanf("%s",name);
+	if(scanf("%[^\n]", buffer) == 1){
+		printf("输入空格错误，您的新昵称为%s\n", player -> name);	
+	}
 	printf("请输入新密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
 	do{
 		scanf("%s",password);
+		if(scanf("%[^\n]", buffer) == 1){
+			printf("不符合标准，请重新输入密码（密码应至少包括一个英文字母，一个阿拉伯数字且不含空格）:");
+			continue;
+		}
 		for(i = 0; i < strlen(password); i++){
 			if(isdigit(password[i])){
 				num_count++;
@@ -400,12 +422,12 @@ int delete_link(struct playerlist *link,int online,struct player *last_player, s
 		link -> head = next_player -> next;
 	}
 	else{
-		last_player -> next = next_player -> next;
 		struct player *cur = link -> head;           //后面的uid都减1
 		do{
 			cur -> uid -= 1;
 			cur = cur -> next;
 		}while(cur -> next != NULL);
+		last_player -> next = next_player -> next;	
 	}
 		                         
 	free(next_player);	
@@ -535,7 +557,7 @@ int game() {         //游戏
                 if (ty[j].name == ty[j + 10].name && ty[j].name != 2) {
                     number_link++;
                     if (number_link == 5) {
-                    	point_end = 1;
+                    	point_end == 1;
                         goto end;	
                     }	
                 }
@@ -639,17 +661,13 @@ int main(int argc, char *argv[]) {
 	int result;
 	struct playerlist link;
 	struct player player;
-	printf("注意事项。\n");
-	printf("玩家账号使用uid登录，忘记uid请打印本机数据查看，玩家注册时系统自动分配uid。\n");
-	printf("插入账号后玩家uid可能发生变化，请查看并记住自己的uid。\n"); 
-	printf("使用前需要初始化，请耐心等待，预计等待时间10s\n");
 	
 	freeLink(&link);  //读取保存在本机上的信息 
 	initlink(&link);
 	readplayerinfo(&link); 
 	
-	cartoon(); 
 	clean_screen();
+	
 	result = showmenu(online);
 	while(result != 10) {
 		clean_screen();
@@ -658,10 +676,11 @@ int main(int argc, char *argv[]) {
 			case 1:
 				addplayerinfo(&link);
 				
-				saveplayerinfo(&link);  
+				saveplayerinfo(&link); 
 				initlink(&link);
-				readplayerinfo(&link);
-				 
+				readplayerinfo(&link); 
+				
+				showplayerscores(&link);
 				break;
 			case 2:
 				if(link.length == 0){
@@ -671,6 +690,10 @@ int main(int argc, char *argv[]) {
 				do{
 					printf("请输入uid:");
 					error = scanf("%d", &pos);
+					if(space_check() == 1){
+						pos = -1; 
+						continue;
+					}
 					if(error != 1){
 						printf("输入错误，"); 
 						while(getchar() != '\n');
@@ -690,9 +713,11 @@ int main(int argc, char *argv[]) {
 					break;
 				}
 				do{
-					
 					printf("请输入插入后的uid:");
 					error = scanf("%d", &pos);
+					if(space_check() == 1){
+						pos = -1;  
+					}
 					if(error != 1){
 						printf("输入错误，"); 
 						while(getchar() != '\n');
@@ -700,10 +725,11 @@ int main(int argc, char *argv[]) {
 				}while(error != 1);
 				insert_after(&link, link.length - pos + 1, &player);
 				
-				saveplayerinfo(&link);  
+				saveplayerinfo(&link); 
 				initlink(&link);
 				readplayerinfo(&link); 
 				
+				showplayerscores(&link);
 				break;
 			case 4:
 				showplayerscores(&link);
@@ -715,6 +741,11 @@ int main(int argc, char *argv[]) {
 				break;
 			case 6:
 				change_info(&link, getelement(&link, link.length - online));
+				
+				saveplayerinfo(&link); 
+				initlink(&link);
+				readplayerinfo(&link);
+				
 				break;
 			case 7:
 				if(online == link.length){
@@ -724,10 +755,11 @@ int main(int argc, char *argv[]) {
 					online = delete_link(&link, online, getelement(&link,link.length - online - 1), getelement(&link,link.length - online));
 				}
 				
-				saveplayerinfo(&link);  
+				saveplayerinfo(&link); 
 				initlink(&link);
 				readplayerinfo(&link);
-				 
+				
+				showplayerscores(&link);
 				break;
 			case 8:
 				if(link.length < 2){
@@ -738,6 +770,10 @@ int main(int argc, char *argv[]) {
 					do{
 					printf("请输入第一位玩家uid:");
 					error = scanf("%d", &player1);
+					if(space_check() == 1){
+						player1 = -1;
+						break;  
+					}
 					if(error != 1){
 						printf("输入错误，"); 
 						while(getchar() != '\n');
@@ -750,6 +786,10 @@ int main(int argc, char *argv[]) {
 					do{
 					printf("请输入第二位玩家uid:");
 					error = scanf("%d", &player2);
+					if(space_check() == 1){
+						player2 = -1; 
+						break; 
+					}
 					if(error != 1){
 						printf("输入错误，"); 
 						while(getchar() != '\n');
@@ -770,22 +810,21 @@ int main(int argc, char *argv[]) {
 					}
 					else if(winner == -1){
 						getelement(&link,link.length - player1) -> tie += 1;
-						getelement(&link,link.length - player2) -> tie += 1;
+						getelement(&link,link.length - player2) -> tie += 1;	
 					}
-					
-					saveplayerinfo(&link);  
-					initlink(&link);
-					readplayerinfo(&link); 
-					
-					break;
 				}
+				
+				saveplayerinfo(&link); 
+				initlink(&link);
+				readplayerinfo(&link);
+				
+				break;
 			case 9:
 				rank(&link);
 				break;
 		}
 		result = showmenu(online);	
 	}
-	
 	saveplayerinfo(&link);   //退出前的保存 
 	printf("您选择了退出操作\n");
 	freeLink(&link);
