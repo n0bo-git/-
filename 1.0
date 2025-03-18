@@ -493,13 +493,13 @@ int game() {         //游戏
                     if (ty[code].name == 1) {
                         printf("---");
                         SetConsoleTextAttribute(hConsole, FOREGROUND_RED);  // 红色棋子 
-                        printf("+");
+                        printf("X");
                         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); // 恢复默认				
                     }
                     else if (ty[code].name == 0) {
                         printf("---");
                         SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE); // 蓝色棋子 
-                        printf("+");
+                        printf("O");
                         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); // 恢复默认				
                     }
                     else {
